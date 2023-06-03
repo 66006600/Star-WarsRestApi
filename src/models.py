@@ -26,29 +26,29 @@ class Character(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     height = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-    favorits = db.relationship('FavoriteCharacter', backref='personajes')
+    favorites = db.relationship('Favorite_Character', backref='personajes')
 
 class Planet(db.Model):
     __tablename__ = 'planets'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(String(50), nullable=False)
     poblacion = db.Column(String(50), nullable=False)   
-    favoritos = db.relationship('FavoritePlanet', backref='planetas')
+    favorites = db.relationship('Favorite_Planet', backref='planetas')
 
 class Favorite_Planet(db.Model):
     __tablename__ = 'favorite_planet'
-    user_id = db.Column(Integer, ForeignKey('user.id'), primary_key = True)
-    planet_id = db.Column(Integer, ForeignKey('planet.id'), primary_key = True)
+    user_id = db.Column(Integer, ForeignKey('users.id'), primary_key = True)
+    planet_id = db.Column(Integer, ForeignKey('planets.id'), primary_key = True)
 
-    users = db.relationship(User, back_populates="favorite_planet")
+    users = db.relationship('User', back_populates="planetas")
 
    
 class Favorite_Character(db.Model):
     __tablename__ = 'favorite_character'   
-    user_id = db.Column(Integer, ForeignKey('user.id'), primary_key = True)
-    character_id = db.Column(Integer, ForeignKey('character.id'), primary_key = True)
+    user_id = db.Column(Integer, ForeignKey('users.id'), primary_key = True)
+    character_id = db.Column(Integer, ForeignKey('characters.id'), primary_key = True)
 
-    users = db.relationship(User, back_populates="favorite_character")
+    users = db.relationship('User', back_populates="personajes")
 
 
     def __repr__(self):

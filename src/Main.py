@@ -9,8 +9,9 @@ db = SQLAlchemy(app)
 
 @app.route('/User', methods=['GET'])
 def get_user():
-    json_text = jsonify(User)
-    return json_text
+    users = User.query.all()
+    return jsonify([user.serialize() for user in users]), 200
+
 
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
@@ -27,9 +28,13 @@ def manage_favorite_planet(planet_id):
         return jsonify({'message': 'Planeta agregado como favorito'}), 201
 
     elif request.method == 'DELETE':
+        if planet_id not in planets_db:
+            abort(404)
+        deleted_planet = planets_db.pop(planet_id)
+        print(deleted_planet)
+        
+        return jsonify({'result': 'success', 'deleted': deleted_planet})
 
-        # favorite_planet = Favorite_Planet.query.filter_by(
-        #     user_id=User.id, planet_id=planet_id).first()
 
         if favorite_planet:
             db.session.delete(favorite_planet)
@@ -74,7 +79,7 @@ def manage_favorite_character(character_id):
 def get_planets():
     if request.method == 'GET':
         planets = Planet.query.all()
-        return jsonify(planet.serialize() for planet in planets), 200
+        return jsonify([planet.serialize() for planet in planets]), 200
 
     elif request.method == 'PUT':
         planet_id = request.json.get('planet_id')
@@ -105,7 +110,7 @@ def get_planets():
 def get_characters():
 
         if request.method == 'GET':
-            planets = Character.query.all()
+            characters = Character.query.all()
             return jsonify(Character.serialize()), 200
 
         elif request.method == 'PUT':
