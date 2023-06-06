@@ -18,15 +18,32 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     personajes = db.relationship('Favorite_Character', backref='usuario')
     planetas = db.relationship('Favorite_Planet', backref='usuario')
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "last_name": self.last_name,
+            "email": self.email,          
+           
+        }
     
 
 class Character(db.Model):
     __tablename__ = 'characters'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     height = db.Column(db.String(80), unique=False, nullable=False)
+    color_eyes = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     favorites = db.relationship('Favorite_Character', backref='personajes')
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "height": self.height,
+            "color_eyes": self.color_eyes,
+            "is_active": self.is_active,
+        }    
 
 class Planet(db.Model):
     __tablename__ = 'planets'
@@ -34,6 +51,13 @@ class Planet(db.Model):
     name = db.Column(String(50), nullable=False)
     poblacion = db.Column(String(50), nullable=False)   
     favorites = db.relationship('Favorite_Planet', backref='planetas')
+       
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "poblacion": self.poblacion,
+        }
 
 class Favorite_Planet(db.Model):
     __tablename__ = 'favorite_planet'
