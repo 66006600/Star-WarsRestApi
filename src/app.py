@@ -37,19 +37,16 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+   
 @app.route('/user', methods=['GET'])
 def handle_hello():
-
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
-
-@app.route('/User', methods=['GET'])
-def get_user():
     users = User.query.all()
-    return jsonify([user.serialize() for user in users]), 200
+    result = []
+    for user in users: result.append({
+    'id': user.id,
+    'email': user.email
+    })
+    return jsonify(result)
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
 def manage_favorite_planet(planet_id):
