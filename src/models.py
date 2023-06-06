@@ -19,7 +19,7 @@ class User(db.Model):
     personajes = db.relationship('Favorite_Character', backref='usuario')
     planetas = db.relationship('Favorite_Planet', backref='usuario')
 
-    def serialize(self):
+    def serialize(self, id, name, last_name, email):
         return {
             "id": self.id,
             "name": self.name,
