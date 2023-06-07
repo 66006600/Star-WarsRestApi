@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify, url_for, abort
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -39,139 +39,135 @@ def sitemap():
    
 @app.route('/user', methods=['GET'])
 def handle_hello():
-    users = User.query.all()
-    result = []
-    for user in users: result.append({
-    'id': user.id,
-    'email': user.email
-    })
+    users = User.query.all()    
+    result = list(map(lambda user:user.serialize(),users))
     return jsonify(result)
 
-@app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
-def manage_favorite_planet(planet_id):
-    if request.method == 'POST':
+# @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
+# def manage_favorite_planet(planet_id):
+#     if request.method == 'POST':
 
-        if Favorite_Planet.query.filter_by(user_id=1, planet_id=planet_id).first():
-            return jsonify({'message': 'El planeta ya es un favorito'}), 409
+#         if Favorite_Planet.query.filter_by(user_id=1, planet_id=planet_id).first():
+#             return jsonify({'message': 'El planeta ya es un favorito'}), 409
 
-        favorite_planet = Favorite_Planet(user_id=1, planet_id=planet_id)
-        db.session.add(favorite_planet)
-        db.session.commit()
+#         favorite_planet = Favorite_Planet(user_id=1, planet_id=planet_id)
+#         db.session.add(favorite_planet)
+#         db.session.commit()
 
-            return jsonify({'message': 'Planeta agregado como favorito'}), 201
+#         return jsonify({'message': 'Planeta agregado como favorito'}), 201
 
-   elif request.method == 'DELETE':
-        if planet_id not in planets_db:
-            abort(404)
-        deleted_planet = planets_db.pop(planet_id)
-        db.session.commit()
-            return jsonify({'result': 'success', 'deleted': deleted_planet})
-
-
-    #return jsonify({'message': 'Método inválido'}), 405
+#     elif request.method == 'DELETE':
+#         if planet_id not in planets_db:
+#             abort(404)
+#         deleted_planet = planets_db.pop(planet_id)
+#         db.session.commit()
+#         return jsonify({'result': 'success', 'deleted': deleted_planet})
 
 
-@app.route('/favorite/character/<int:character_id>', methods=['POST', 'DELETE'])
-def manage_favorite_character(character_id):
-    if request.method == 'POST':
-
-        if Favorite_Character.query.filter_by(user_id=1, character_id=character_id).first():
-            return jsonify({'message': 'El personaje ya es tu favorito'}), 409
-
-        favorite_character = Favorite_Character(
-            user_id=1, character_id=character_id)
-        db.session.add(favorite_character)
-        db.session.commit()
-            return jsonify({'message': 'Personaje agregado como favorito'}), 201
-
-    elif request.method == 'DELETE':
-
-        if favorite_character not in favorite_character_db:
-            abort(404)
-        deleted_favorite_character = favorite_character_db.pop(favorite_character)
-        db.session.commit()
-        print(deleted_favorite_character)
-            return jsonify({'result': 'success', 'deleted': deleted_favorite_Character})
+#     #return jsonify({'message': 'Método inválido'}), 405
 
 
-@app.route('/planets', methods=['GET', 'PUT', 'POST'])
-def get_planets():
-    if request.method == 'GET':
-        planets = Planet.query.all()
-        return jsonify([planet.serialize() for planet in planets]), 200
+# @app.route('/favorite/character/<int:character_id>', methods=['POST', 'DELETE'])
+# def manage_favorite_character(character_id):
+#     if request.method == 'POST':
 
-    elif request.method == 'PUT':
-        planet_id = request.json.get('planet_id')
-        planet_name = request.json.get('planet_name')
-        planet = Planet.query.get(planet_id)
+#         if Favorite_Character.query.filter_by(user_id=1, character_id=character_id).first():
+#             return jsonify({'message': 'El personaje ya es tu favorito'}), 409
 
-        if not planet:
-            return jsonify({'message': 'El planeta no existe'}), 404
+#         favorite_character = Favorite_Character(
+#             user_id=1, character_id=character_id)
+#         db.session.add(favorite_character)
+#         db.session.commit()
+#         return jsonify({'message': 'Personaje agregado como favorito'}), 201
 
-        planet.name = planet_name
-        db.session.commit()
-            return jsonify(planet.serialize()), 200
+#     elif request.method == 'DELETE':
 
-    elif request.method == 'POST':
-        planet_name = request.json.get('planet_name')
-
-        new_planet = Planet(name=planet_name)
-        db.session.add(new_planet)
-        db.session.commit()
-            return jsonify({'message': 'Planeta agregado correctamente', 'planet': new_planet.serialize()}), 201
-
-    else:
-        return jsonify({'message': 'Invalid method'}), 405
+#         if favorite_character not in favorite_character_db:
+#             abort(404)
+#         deleted_favorite_character = favorite_character_db.pop(favorite_character)
+#         db.session.commit()
+#         print(deleted_favorite_character)
+#         return jsonify({'result': 'success', 'deleted': deleted_favorite_Character})
 
 
-@app.route('/characters', methods=['GET', 'PUT', 'POST'])
-def get_characters():
+# @app.route('/planets', methods=['GET', 'PUT', 'POST'])
+# def get_planets():
+#     if request.method == 'GET':
+#         planets = Planet.query.all()
+#         return jsonify([planet.serialize() for planet in planets]), 200
 
-        if request.method == 'GET':
-            characters = Character.query.all()
-            return jsonify(Character.serialize()), 200
+#     elif request.method == 'PUT':
+#         planet_id = request.json.get('planet_id')
+#         planet_name = request.json.get('planet_name')
+#         planet = Planet.query.get(planet_id)
 
-        elif request.method == 'PUT':
-            character_id = request.json.get('character_id')
-            character_name = request.json.get('character_name')
-            character = Character.query.get(character_id)
+#         if not planet:
+#             return jsonify({'message': 'El planeta no existe'}), 404
 
-            if not character:
-                return jsonify({'message': 'El personaje no existe'}), 404
+#         planet.name = planet_name
+#         db.session.commit()
+#         return jsonify(planet.serialize()), 200
 
-            character.name = character_name
-            db.session.commit()
-                return jsonify(character.serialize()), 200
+#     elif request.method == 'POST':
+#         planet_name = request.json.get('planet_name')
 
-        elif request.method == 'POST':
-            character_name = request.json.get('character_name')
-            new_character = Character(name=character_name)
+#         new_planet = Planet(name=planet_name)
+#         db.session.add(new_planet)
+#         db.session.commit()
+#         return jsonify({'message': 'Planeta agregado correctamente', 'planet': new_planet.serialize()}), 201
 
-            db.session.add(new_character)
-            db.session.commit()
-                return jsonify({'message': 'Personaje agregado correctamente'}), 201
-
-        else:
-            return jsonify({'message': 'Invalid method'}), 405
-
-@app.route('/character/<string:character_id>', methods=['DELETE'])
-def delete_character(character_id):
-    if character_id not in characters_db:
-        abort(404)
-     deleted_character = characters_db.pop(character_id)
-     print(deleted_character)
-     db.session.commit()
-        return jsonify({'result': 'success', 'deleted': deleted_character})
+#     else:
+#         return jsonify({'message': 'Invalid method'}), 405
 
 
-@app.route('/planet/<string:planet_id>', methods=['DELETE'])
-def delete_planet(planet_id):
-    if planet_id not in planets_db:
-        abort(404)
-     deleted_planet = planets_db.pop(planet_id)
-     print(deleted_planet)
-     db.session.commit()
-        return jsonify({'result': 'success', 'deleted': deleted_planet})
+# @app.route('/characters', methods=['GET', 'PUT', 'POST'])
+# def get_characters():
+
+#         if request.method == 'GET':
+#             characters = Character.query.all()
+#             return jsonify(Character.serialize()), 200
+
+#         elif request.method == 'PUT':
+#             character_id = request.json.get('character_id')
+#             character_name = request.json.get('character_name')
+#             character = Character.query.get(character_id)
+
+#             if not character:
+#                 return jsonify({'message': 'El personaje no existe'}), 404
+
+#             character.name = character_name
+#             db.session.commit()
+#             return jsonify(character.serialize()), 200
+
+#         elif request.method == 'POST':
+#             character_name = request.json.get('character_name')
+#             new_character = Character(name=character_name)
+
+#             db.session.add(new_character)
+#             db.session.commit()
+#             return jsonify({'message': 'Personaje agregado correctamente'}), 201
+
+#         else:
+#             return jsonify({'message': 'Invalid method'}), 405
+
+# @app.route('/character/<string:character_id>', methods=['DELETE'])
+# def delete_character(character_id):
+#     if character_id not in characters_db:
+#         abort(404)
+#     deleted_character = characters_db.pop(character_id)
+#     print(deleted_character)
+#     db.session.commit()
+#     return jsonify({'result': 'success', 'deleted': deleted_character})
+
+
+# @app.route('/planet/<string:planet_id>', methods=['DELETE'])
+# def delete_planet(planet_id):
+#     if planet_id not in planets_db:
+#         abort(404)
+#     deleted_planet = planets_db.pop(planet_id)
+#     print(deleted_planet)
+#     db.session.commit()
+#     return jsonify({'result': 'success', 'deleted': deleted_planet})
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
