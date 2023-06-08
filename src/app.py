@@ -43,6 +43,18 @@ def handle_hello():
     result = list(map(lambda user:user.serialize(),users))
     return jsonify(result)
 
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def manage_favorite_planet(planet_id):
+
+    user = query.get(user_id)
+
+    favorite_planet = Favorite_Planet(planet_id=request.json['planet'])
+
+    db.session.add(favorite_planet)
+    db.session.commit()
+    return jsonify(favorite_planet.serialize()), 201
+
+
 # @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
 # def manage_favorite_planet(planet_id):
 #     if request.method == 'POST':
