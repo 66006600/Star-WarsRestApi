@@ -43,16 +43,67 @@ def handle_hello():
     result = list(map(lambda user:user.serialize(),users))
     return jsonify(result)
 
-@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
-def manage_favorite_planet(planet_id):
 
-    user = query.get(user_id)
+@app.route('/character', methods=['GET'])
+def get_characters():
+    characters = Character.query.all()    
+    result = list(map(lambda character:character.serialize(),characters))
+    return jsonify(result)
 
-    favorite_planet = Favorite_Planet(planet_id=request.json['planet'])
+@app.route('/planets', methods=['GET'])
+def get_planets():
+    planets = Planets.query.all()    
+    result = list(map(lambda planet:planet.serialize(),planets))
+    return jsonify(result)
 
-    db.session.add(favorite_planet)
+
+
+
+@app.route('/planets', methods=['POST'])
+def create_planet():
+    data = request.get_json()
+    new_planet = Planet(name=data['name'])
+    db.session.add(new_planet)
     db.session.commit()
-    return jsonify(favorite_planet.serialize()), 201
+  
+    return jsonify({
+        'id': new_planet.id,
+        'name': new_planet.name
+       
+    }), 201
+
+
+@app.route('/user/favorite_character/<int:user_id>', methods=['POST'])
+def add_favorite_character(user_id):
+    user_id = User.query.get(user_id)
+    if user is None:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    character_id = data.get('character_id')
+    if character_id is None:
+        return jsonify({'error': 'Invalid request'}), 400
+
+    favorite_character = Favorite_Character(user=user, character=character)
+    db.session.add(favorite_character)
+    db.session.commit()
+
+    return jsonify({
+        'user_id': user.id,
+        'character_id': character.id
+     }), 201
+
+
+# @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+# def manage_favorite_planet(planet_id):
+
+#     user = query.get(user_id)
+
+#     favorite_planet = Favorite_Planet(planet_id=request.json['planet'])
+
+#     db.session.add(favorite_planet)
+#     db.session.commit()
+#     return jsonify(favorite_planet.serialize()), 201
 
 
 # @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
