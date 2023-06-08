@@ -63,6 +63,7 @@ def get_planets():
 def create_planet():
     data = request.get_json()
     new_planet = Planet(name=data['name'])
+    
     db.session.add(new_planet)
     db.session.commit()
   
