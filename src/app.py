@@ -69,13 +69,17 @@ def create_planet():
   
     return jsonify({"mensaje": "Se ha agregado un nuevo planeta"}), 201
 
-@app.route('/planets', methods=['DELTE'])
-def delete_planet():
-    if planet_id not in planets_db:
+@app.route('/planets/<id>', methods=['DELETE'])
+def delete_planet(id):
+    print(id)
+    planet = Planet.query.filter(Planet.id == id).one_or_none()
+    if planet == None:
         abort(404)
-    deleted_planet = planets_db.pop(planet_id)
+    db.session.delete(planet)
     db.session.commit()
-    return jsonify({'result': 'success', 'deleted': deleted_planet})
+    return jsonify({'result': 'success'})
+
+  
 
 
 
