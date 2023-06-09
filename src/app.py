@@ -52,7 +52,7 @@ def get_characters():
 
 @app.route('/planets', methods=['GET'])
 def get_planets():
-    planets = Planets.query.all()    
+    planets = Planet.query.all()    
     result = list(map(lambda planet:planet.serialize(),planets))
     return jsonify(result)
 
@@ -62,16 +62,24 @@ def get_planets():
 @app.route('/planets', methods=['POST'])
 def create_planet():
     data = request.get_json()
-    new_planet = Planet(name=data['name'])
-    
+    new_planet = Planet(name=data['name'], poblacion=data['poblacion'])
+    print("jsjs")
     db.session.add(new_planet)
     db.session.commit()
   
-    return jsonify({
-        'id': new_planet.id,
-        'name': new_planet.name
-       
-    }), 201
+    return jsonify({"mensaje": "Se ha agregado un nuevo planeta"}), 201
+
+@app.route('/planets', methods=['DELTE'])
+def delete_planet():
+    if planet_id not in planets_db:
+        abort(404)
+    deleted_planet = planets_db.pop(planet_id)
+    db.session.commit()
+    return jsonify({'result': 'success', 'deleted': deleted_planet})
+
+
+
+
 
 
 @app.route('/user/favorite_character/<int:user_id>', methods=['POST'])
