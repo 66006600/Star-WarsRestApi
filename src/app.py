@@ -69,6 +69,17 @@ def create_planet():
   
     return jsonify({"mensaje": "Se ha agregado un nuevo planeta"}), 201
 
+
+@app.route('/characters', methods=['POST'])
+def create_character():
+    data = request.get_json()
+    new_character = Character(name=data['name'], height=data['height'])
+    print("jsjs")
+    db.session.add(new_character)
+    db.session.commit()
+  
+    return jsonify({"mensaje": "Se ha agregado un nuevo personaje"}), 201
+
 @app.route('/planets/<id>', methods=['DELETE'])
 def delete_planet(id):
     print(id)
@@ -78,13 +89,17 @@ def delete_planet(id):
     db.session.delete(planet)
     db.session.commit()
     return jsonify({'result': 'success'})
-
-  
-
-
-
-
-
+    
+@app.route('/character/<id>', methods=['DELETE'])
+def delete_character(id):
+    print(id)
+    character = Character.query.filter(Character.id == id).one_or_none()
+    if character == None:
+        abort(404)
+    db.session.delete(character)
+    db.session.commit()
+    return jsonify({'result': 'success'})
+    
 
 @app.route('/user/favorite_character/<int:user_id>', methods=['POST'])
 def add_favorite_character(user_id):
