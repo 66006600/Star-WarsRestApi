@@ -103,23 +103,22 @@ def delete_character(id):
 
 @app.route('/user/favorite_character/<int:user_id>', methods=['POST'])
 def add_favorite_character(user_id):
-    user_id = User.query.get(user_id)
+    user = User.query.get(user_id)
     if user is None:
         return jsonify({'error': 'User not found'}), 404
 
     data = request.get_json()
-    character_id = data.get('character_id')
+    character_id = data['character_id']
     if character_id is None:
         return jsonify({'error': 'Invalid request'}), 400
 
-    favorite_character = Favorite_Character(user=user, character=character)
+    favorite_character = Favorite_Character(user_id=user_id, character_id=character_id)
     db.session.add(favorite_character)
     db.session.commit()
 
-    return jsonify({
-        'user_id': user.id,
-        'character_id': character.id
-     }), 201
+    # return jsonify(favorite_planet.serialize()), 201
+
+    return jsonify({'message': 'Personaje agregado como favorito'}), 201
 
 
 # @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
