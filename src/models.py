@@ -58,8 +58,7 @@ class Favorite_Planet(db.Model):
     __tablename__ = 'favorite_planet'
     user_id = db.Column(Integer, ForeignKey('users.id'), primary_key = True)
     planet_id = db.Column(Integer, ForeignKey('planets.id'), primary_key = True)
-
-   
+  
    
 class Favorite_Character(db.Model):
     __tablename__ = 'favorite_character'   
